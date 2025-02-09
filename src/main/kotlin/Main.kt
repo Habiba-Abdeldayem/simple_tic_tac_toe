@@ -10,9 +10,10 @@ val winPatterns = listOf(
 
 
 fun main() {
-    val userInput = readln()
+    val userInput = readln().replace("_", " ")
     printGrid(userInput)
-    println(determineStatus(userInput))
+    move(userInput)
+//    println(determineStatus(userInput))
 }
 
 fun printGrid(gridSymbols: String) {
@@ -20,6 +21,32 @@ fun printGrid(gridSymbols: String) {
     gridSymbols.chunked(3).forEach { println("| ${it.toCharArray().joinToString(" ")} |") }
     println("---------")
 }
+
+fun move(gridSymbols: String) {
+    val gameMatrix = gridSymbols.chunked(3).map { it.toMutableList() }.toMutableList()
+//    println(gameMatrix)
+    var validInput = false
+
+    while (!validInput) {
+        val twoNumbers = readln().split(" ").map { it.first() }.toCharArray()
+        val a = twoNumbers.first()
+        val b = twoNumbers.last()
+        val aInt = a.digitToIntOrNull()?.minus(1)
+        val bInt = b.digitToIntOrNull()?.minus(1)
+        when {
+            !a.isDigit() || !b.isDigit() -> println("You should enter numbers!")
+            a.digitToInt() !in 1..3 || b.digitToInt() !in 1..3 -> println("Coordinates should be from 1 to 3!")
+            gameMatrix[aInt!!][bInt!!] != ' ' -> println("This cell is occupied! Choose another one!")
+            else -> {
+                val idx = aInt * 3 + bInt
+                val updatedGrid = gridSymbols.replaceRange(idx, idx + 1, "X")
+                printGrid(updatedGrid)
+                validInput = true
+            }
+        }
+    }
+}
+
 
 fun determineStatus(gridSymbols: String): String {
     val xCount = gridSymbols.count { it == 'X' }

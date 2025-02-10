@@ -1,108 +1,72 @@
 package org.example
 
-import java.sql.DriverManager.println
 import kotlin.math.absoluteValue
 
-val row1 = listOf(0, 1, 2)
-val row2 = listOf(3, 4, 5)
-val row3 = listOf(6, 7, 8)
-val col1 = listOf(0, 3, 6)
-val col2 = listOf(1, 4, 7)
-val col3 = listOf(2, 5, 8)
-val diagonal1 = listOf(0, 4, 8)
-val diagonal2 = listOf(2, 4, 6)
-val game = listOf(
-    row1, row2, row3, col1, col2, col3, diagonal1, diagonal2
+val winPatterns = listOf(
+    listOf(0, 1, 2), listOf(3, 4, 5), listOf(6, 7, 8), // Rows
+    listOf(0, 3, 6), listOf(1, 4, 7), listOf(2, 5, 8), // Columns
+    listOf(0, 4, 8), listOf(2, 4, 6)  // Diagonals
 )
 
 fun main() {
-    val grid = readln()
-    game_state(grid)
-    val xCount = grid.count { it == 'X' }
-    val oCount = grid.count { it == 'O' }
+    startGame()
+}
 
-    val winPatterns = listOf(
-        listOf(0, 1, 2), listOf(3, 4, 5), listOf(6, 7, 8), // Rows
-        listOf(0, 3, 6), listOf(1, 4, 7), listOf(2, 5, 8), // Columns
-        listOf(0, 4, 8), listOf(2, 4, 6)  // Diagonals
-    )
+fun printBoard(board: List<Char>) {
+    println("---------")
+    board.chunked(3).forEach { println("| ${it.joinToString(" ")} |") }
+    println("---------")
+}
 
-    val xWins = winPatterns.any { pattern -> pattern.all { grid[it] == 'X' } }
-    val oWins = winPatterns.any { pattern -> pattern.all { grid[it] == 'O' } }
+fun getValidMove(board: List<Char>): Pair<Int, Int> {
+    while (true) {
+        val input = readln().split(" ")
+        val row = input.getOrNull(0)?.toIntOrNull()?.minus(1)
+        val col = input.getOrNull(1)?.toIntOrNull()?.minus(1)
+        when {
+            row == null || col == null -> println("You should enter numbers!")
+            row !in 0..2 || col !in 0..2 -> println("Coordinates should be from 1 to 3!")
+            board[row * 3 + col] != ' ' -> println("This cell is occupied! Choose another one!")
+            else -> return row to col
+
+        }
+    }
+}
 
 
-    val status = when{
+fun checkGameStatus(board: List<Char>): String {
+    val xCount = board.count { it == 'X' }
+    val oCount = board.count { it == 'O' }
+
+    val xWins = winPatterns.any { pattern -> pattern.all { board[it] == 'X' } }
+    val oWins = winPatterns.any { pattern -> pattern.all { board[it] == 'O' } }
+
+    return when {
         xWins && oWins || (xCount - oCount).absoluteValue > 1 -> "Impossible"
         xWins -> "X wins"
         oWins -> "O wins"
-        "_" in grid -> "Game not finished"
+        board.contains(' ') -> "Game not finished"
         else -> "Draw"
     }
-
-    print(status)
-
-
-
 }
 
-fun game_state(gridSymbols: String) {
-    print("---------\n|")
-    var stringIndex = 0
+fun startGame() {
+    val gameBoard = MutableList(9) { ' ' }
+    var currentPlayer = 'X'
 
-    for (symbolIdx in gridSymbols.indices) {
-        print("${gridSymbols[symbolIdx]} ")
-        if (symbolIdx == 2 || symbolIdx == 5 || symbolIdx == 8) print("|\n|")
-    }
+    printBoard(gameBoard)
+    while (true) {
+        val (row, col) = getValidMove(gameBoard)
+        gameBoard[row * 3 + col] = currentPlayer
+        printBoard(gameBoard)
 
-//    var line1 = gridSymbols[0] + " " + gridSymbols[1] + " " + gridSymbols[2]
-//    var line2 = gridSymbols[3] + " " + gridSymbols[4] + " " + gridSymbols[5]
-//    var line3 = gridSymbols[6] + " " + gridSymbols[7] + " " + gridSymbols[8]
-//    line(line1)
-//    line(line2)
-//    line(line3)
-
-    print("---------\n")
-}
-
-fun line(line: String) {
-    println("| $line |")
-}
-
-fun countsApplicable(userInput: String): Boolean {
-    val cntX = userInput.count { it == 'X' }
-    println("cnt x: $cntX")
-    val cntY = userInput.count { it == 'O' }
-    println("cnt y: $cntY")
-
-    val isApplicable = (cntX == cntY) || (cntX == cntY - 1) || (cntY == cntX - 1)
-    return isApplicable
-}
-
-fun containThreeInARow(userInput: String): Boolean {
-
-    var countWinner = 0
-
-    for (line in game) {
-        if (userInput[line[0]] == 'X' && userInput[line[1]] == 'X' && userInput[line[2]] == 'X' || userInput[line[0]] == 'O' && userInput[line[1]] == 'O' && userInput[line[2]] == 'O') {
-            countWinner++
-            if (countWinner > 1) return true
+        when (val status = checkGameStatus(gameBoard)) {
+            "X wins", "O wins", "Draw" -> {
+                println(status)
+                return
+            }
         }
+        currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+
     }
-
-    return false
-}
-
-fun determineWinner(userInput: String): String {
-    var winner = ""
-
-    for (line in game) {
-        if (userInput[line[0]] == 'X' && userInput[line[1]] == 'X' && userInput[line[2]] == 'X') {
-            winner = "X"
-            return winner
-        } else if (userInput[line[0]] == 'O' && userInput[line[1]] == 'O' && userInput[line[2]] == 'O') {
-            winner = "O"
-            return winner
-        }
-    }
-    return winner
 }

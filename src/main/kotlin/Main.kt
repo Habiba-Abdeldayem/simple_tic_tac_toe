@@ -9,69 +9,64 @@ val winPatterns = listOf(
 )
 
 fun main() {
-    gameLoop()
-//    val userInput = readln().replace("_", " ")
-//    printGrid(userInput)
-//    move(userInput)
-//    println(determineStatus(userInput))
+    startGame()
 }
 
-fun printGrid(gridSymbols: String) {
+fun printBoard(board: List<Char>) {
     println("---------")
-    gridSymbols.chunked(3).forEach { println("| ${it.toCharArray().joinToString(" ")} |") }
+    board.chunked(3).forEach { println("| ${it.joinToString(" ")} |") }
     println("---------")
 }
 
-fun move(gridSymbols: String, currentPlayer: String): String {
-    val gameMatrix = gridSymbols.toMutableList()
-//    println(gameMatrix)
-    var validInput = false
-
-    while (!validInput) {
+fun getValidMove(board: List<Char>): Pair<Int, Int> {
+    while (true) {
         val input = readln().split(" ")
         val row = input.getOrNull(0)?.toIntOrNull()?.minus(1)
         val col = input.getOrNull(1)?.toIntOrNull()?.minus(1)
         when {
             row == null || col == null -> println("You should enter numbers!")
             row !in 0..2 || col !in 0..2 -> println("Coordinates should be from 1 to 3!")
-            gameMatrix[row * 3 + col] != ' ' -> println("This cell is occupied! Choose another one!")
-            else -> {
+            board[row * 3 + col] != ' ' -> println("This cell is occupied! Choose another one!")
+            else -> return row to col
 
-                gameMatrix[row * 3 + col] = currentPlayer.first()
-                printGrid(gameMatrix.joinToString(""))
-                return gameMatrix.joinToString("")
-            }
         }
     }
-    return gridSymbols
 }
 
 
-fun determineStatus(gridSymbols: String): String {
-    val xCount = gridSymbols.count { it == 'X' }
-    val oCount = gridSymbols.count { it == 'O' }
+fun checkGameStatus(board: List<Char>): String {
+    val xCount = board.count { it == 'X' }
+    val oCount = board.count { it == 'O' }
 
-    val xWins = winPatterns.any { pattern -> pattern.all { gridSymbols[it] == 'X' } }
-    val oWins = winPatterns.any { pattern -> pattern.all { gridSymbols[it] == 'O' } }
+    val xWins = winPatterns.any { pattern -> pattern.all { board[it] == 'X' } }
+    val oWins = winPatterns.any { pattern -> pattern.all { board[it] == 'O' } }
 
     return when {
         xWins && oWins || (xCount - oCount).absoluteValue > 1 -> "Impossible"
         xWins -> "X wins"
         oWins -> "O wins"
-        " " in gridSymbols -> "Game not finished"
-        else -> "Impossible"
+        board.contains(' ') -> "Game not finished"
+        else -> "Draw"
     }
 }
 
-fun gameLoop() {
-    var gameBoard = "         "
-    var currentPlayer = "X"
-    printGrid(gameBoard)
-    var gameStatus = "Game not finished"
-    while (gameStatus == "Game not finished") {
-        gameBoard = move(gameBoard, currentPlayer)
-        gameStatus = determineStatus(gameBoard)
-        currentPlayer = if (currentPlayer == "X") "O" else "X"
+fun startGame() {
+    val gameBoard = MutableList(9) { ' ' }
+    var currentPlayer = 'X'
+
+    printBoard(gameBoard)
+    while (true) {
+        val (row, col) = getValidMove(gameBoard)
+        gameBoard[row * 3 + col] = currentPlayer
+        printBoard(gameBoard)
+
+        when (val status = checkGameStatus(gameBoard)) {
+            "X wins", "O wins", "Draw" -> {
+                println(status)
+                return
+            }
+        }
+        currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+
     }
-    println(gameStatus)
 }

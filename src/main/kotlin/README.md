@@ -21,5 +21,19 @@ A simple **Tic-Tac-Toe** game written in Kotlin. Two players take turns playing 
 - ┣ 📄 Main.kt # Main game logic
 - ┗ 📄 README.md # Documentation
 
+## 📚 What I Learned
+
+While working on this project, I explored and applied several key programming concepts in Kotlin:
+
+- **List Manipulation**: Used `chunked(3)` to divide a flat list into rows for cleaner board printing.
+- **Input Handling & Validation**: Used `getOrNull()` to safely extract user input and `toIntOrNull()` to prevent crashes.
+- **Game Logic Optimization**: Stored winning patterns in a predefined `winPatterns` list and used `any { pattern.all { ... } }` to check for wins efficiently.
+- **State Management**: Used a `MutableList<Char>` for the board, updating it dynamically as the game progresses.
+- **Loop Control & Conditions**: Implemented a `while (true)` loop with an inline `when` statement to manage game flow efficiently.
+
+This project improved my understanding of **list operations, functional programming techniques, and game logic handling in Kotlin**. 🚀
+
+
 ## 🎉 Contributions
 - Feel free to **fork**, improve, or suggest new features via **pull requests**! 🚀  
+

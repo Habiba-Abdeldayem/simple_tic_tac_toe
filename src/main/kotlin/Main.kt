@@ -8,11 +8,11 @@ val winPatterns = listOf(
     listOf(0, 4, 8), listOf(2, 4, 6)  // Diagonals
 )
 
-
 fun main() {
-    val userInput = readln().replace("_", " ")
-    printGrid(userInput)
-    move(userInput)
+    gameLoop()
+//    val userInput = readln().replace("_", " ")
+//    printGrid(userInput)
+//    move(userInput)
 //    println(determineStatus(userInput))
 }
 
@@ -22,7 +22,7 @@ fun printGrid(gridSymbols: String) {
     println("---------")
 }
 
-fun move(gridSymbols: String) {
+fun move(gridSymbols: String, currentPlayer: String): String {
     val gameMatrix = gridSymbols.toMutableList()
 //    println(gameMatrix)
     var validInput = false
@@ -37,12 +37,13 @@ fun move(gridSymbols: String) {
             gameMatrix[row * 3 + col] != ' ' -> println("This cell is occupied! Choose another one!")
             else -> {
 
-                gameMatrix[row * 3 + col] = 'X'
+                gameMatrix[row * 3 + col] = currentPlayer.first()
                 printGrid(gameMatrix.joinToString(""))
-                validInput = true
+                return gameMatrix.joinToString("")
             }
         }
     }
+    return gridSymbols
 }
 
 
@@ -57,8 +58,20 @@ fun determineStatus(gridSymbols: String): String {
         xWins && oWins || (xCount - oCount).absoluteValue > 1 -> "Impossible"
         xWins -> "X wins"
         oWins -> "O wins"
-        "_" in gridSymbols -> "Game not finished"
+        " " in gridSymbols -> "Game not finished"
         else -> "Impossible"
     }
 }
 
+fun gameLoop() {
+    var gameBoard = "         "
+    var currentPlayer = "X"
+    printGrid(gameBoard)
+    var gameStatus = "Game not finished"
+    while (gameStatus == "Game not finished") {
+        gameBoard = move(gameBoard, currentPlayer)
+        gameStatus = determineStatus(gameBoard)
+        currentPlayer = if (currentPlayer == "X") "O" else "X"
+    }
+    println(gameStatus)
+}
